@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_restful import Resource, Api, reqparse, fields, marshal_with
+from flask_restful import Resource, Api, abort, reqparse, fields, marshal_with
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -42,10 +42,38 @@ class UserResource(Resource):
         db.session.add(user)
         db.session.commit()
         return user, 201
+    class User(Resource):
+        @marshal_with(user_fields)
+        def get(self ,id):
+            user = UserModel.query.filter_by(id = id).first()
+            if not user:
+                abort(404,"user not found")
+                return user
+        @marshal_with(user_fields)
+        def patch(self ,id):
+            args =user_args.parse_args()
+            user = UserModel.query.filter_by(id = id).first()
+            if not user:
+                abort(404,"user not found")
+                user.name = args["name"]
+                user.email =args["email"]
+                db.session.commit
+
+                return user   
+        @marshal_with(user_fields)
+        def delete(self ,id):
+           
+            user = UserModel.query.filter_by(id = id).first()
+            if not user:
+                abort(404,"user not found")
+                db.session.delete(user)
+                db.session.commit()
+                users =UserModel.query.all()
+                return users ,204
 
 # Register the resource
-api.add_resource(UserResource, '/api/users/')
-
+api.add_resource(user, '/api/users/')
+api.add_resource(user,'/api/users/<int:id>')
 @app.route('/')
 def home():
     return '<h1>Flask REST API</h1>'
