@@ -24,7 +24,15 @@ def get_weather():
     if response.status_code != 200:
         return jsonify({"error": "City not found"}), 404
 
-    
+    data = response.json()
+    result = {
+        "city": data["name"],
+        "temperature": data["main"]["temp"],
+        "description": data["weather"][0]["description"],
+        "humidity": data["main"]["humidity"],
+        "wind_speed": data["wind"]["speed"]
+    }
+    return jsonify(result)
 
 if __name__ == '__main__':
     app.run(debug=True)
