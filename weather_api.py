@@ -18,3 +18,13 @@ def get_weather():
     city = request.args.get('city')
     if not city:
         return jsonify({"error": "Missing 'city' query parameter"}), 400
+
+    params = {"q": city, "appid": API_KEY, "units": "metric"}
+    response = requests.get(BASE_URL, params=params)
+    if response.status_code != 200:
+        return jsonify({"error": "City not found"}), 404
+
+    
+
+if __name__ == '__main__':
+    app.run(debug=True)
